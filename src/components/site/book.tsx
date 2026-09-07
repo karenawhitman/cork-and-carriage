@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 
+const INBOX = "karen@corkncarriage.com";
+const SUBMIT_URL = `https://formsubmit.co/ajax/${INBOX}`;
+
 const SERVICES = [
   { id: "photo", label: "Photo truck — available now" },
   { id: "uncorked", label: "3600 Uncorked waitlist — Spring 2027" },
@@ -44,6 +47,7 @@ export function Book() {
   const [form, setForm] = useState<Inquiry>(empty);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
   const isPhoto = form.service === "photo";
   const occasions = isPhoto ? PHOTO_OCCASIONS : BAR_OCCASIONS;
 
@@ -55,7 +59,7 @@ export function Book() {
     });
   }
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.email.trim()) {
       setError("Name and email get a reply.");
@@ -69,17 +73,45 @@ export function Book() {
       setError("That email does not look right.");
       return;
     }
-    const key = "cork-carriage-inquiries";
-    let prev: Inquiry[] = [];
-    try {
-      prev = JSON.parse(localStorage.getItem(key) || "[]") as Inquiry[];
-      if (!Array.isArray(prev)) prev = [];
-    } catch {
-      prev = [];
-    }
-    localStorage.setItem(key, JSON.stringify([...prev, form]));
-    setSent(true);
+
+    const serviceLabel = SERVICES.find((s) => s.id === form.service)?.label ?? form.service;
+    setSending(true);
     setError("");
+    try {
+      const res = await fetch(SUBMIT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          _subject: isPhoto
+            ? `Photo truck request — ${form.date}`
+            : "3600 Uncorked waitlist",
+          _template: "table",
+          _captcha: "false",
+          _replyto: form.email,
+          name: form.name,
+          email: form.email,
+          service: serviceLabel,
+          date: form.date || "(none)",
+          place: form.place,
+          occasion: form.occasion,
+          notes: form.notes.trim() || "(none)",
+        }),
+      });
+      const data = (await res.json()) as { success?: string | boolean; message?: string };
+      if (!res.ok || data.success === "false" || data.success === false) {
+        throw new Error(data.message || "send failed");
+      }
+      setSent(true);
+    } catch {
+      setError(
+        `The form did not go through. Email ${INBOX} directly and we will still write back.`,
+      );
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -91,22 +123,21 @@ export function Book() {
             Book the 3600 now. Hold a Saturday for 2027.
           </h2>
           <p className="mt-4 max-w-md text-muted">
-            Cork & Carriage LLC is booking the vintage Chevy for photo
+            Cork &amp; Carriage LLC is booking the vintage Chevy for photo
             sessions today. 3600 Uncorked dry-hire starts Spring 2027 — join the
             waitlist if you already have a lawn.
           </p>
           <p className="mt-6 text-sm text-muted">
             Photo truck, three hours, from $550. A COI naming your venue or
             landowner is available. The bar, when it rolls, is dry hire from
-            $1,150.
+            $1,150. Requests go to {INBOX}.
           </p>
         </div>
         {sent ? (
           <div className="rounded-xl bg-forest p-8 text-accent-fg">
             <p className="font-display text-2xl">We have it.</p>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-accent-fg/80">
-              {form.name.split(" ")[0]}, we’ll write back from the Middlesex
-              yard
+              {form.name.split(" ")[0]}, we’ll write back from {INBOX}
               {isPhoto ? ` about ${form.date} on the ${form.place}` : " about the 3600 Uncorked waitlist"}.
               If the date is already spoken for, we’ll say so plainly.
             </p>
@@ -122,7 +153,7 @@ export function Book() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="rounded-xl bg-bg p-6 shadow-[var(--shadow-border)] sm:p-8">
+          <form onSubmit={(e) => void onSubmit(e)} className="rounded-xl bg-bg p-6 shadow-[var(--shadow-border)] sm:p-8">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block text-sm text-muted sm:col-span-2">
                 Service
@@ -205,8 +236,8 @@ export function Book() {
               </label>
             </div>
             {error ? <p className="mt-3 text-sm text-danger">{error}</p> : null}
-            <Button type="submit" size="lg" className="mt-6 w-full sm:w-auto">
-              {isPhoto ? "Request the truck" : "Join the waitlist"}
+            <Button type="submit" size="lg" className="mt-6 w-full sm:w-auto" disabled={sending}>
+              {sending ? "Sending…" : isPhoto ? "Request the truck" : "Join the waitlist"}
             </Button>
             <p className="mt-3 text-xs text-subtle">
               {isPhoto
