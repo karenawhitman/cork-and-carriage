@@ -12,9 +12,8 @@ const circuit = [
 ];
 
 const gallery = [
-  { src: "/concept.jpg", alt: "Green 1950 Chevrolet 3600 beside a cream-and-green Yellowstone canned-ham bar under string lights" },
-  { src: "/gallery-hatch.jpg", alt: "Serving hatch of the Yellowstone bar with string lights, glassware, and the vintage Chevy 3600 beyond" },
-  { src: "/gallery-pair.jpg", alt: "The 3600 hitched to the Yellowstone on a grass lawn at golden hour" },
+  { src: "/lookbook-beach.jpg", alt: "Green 1950 Chevrolet 3600 on a Virginia beach, dunes and water beyond" },
+  { src: "/lookbook-onemo-rear.jpg", alt: "Green 1950 Chevrolet 3600 from the rear three-quarter at a Middlesex County post office" },
 ];
 
 const seasons = [
@@ -60,7 +59,7 @@ export function SiteHome() {
             alt="Green 1950 Chevrolet 3600 beside a 1963 Yellowstone canned-ham bar"
             className="absolute inset-0 size-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-ink/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/15 to-ink/25" />
           <div className="relative mx-auto flex min-h-svh max-w-6xl flex-col justify-end px-4 pb-16 pt-28 sm:px-6 sm:pb-20">
             <p className="text-xs font-medium tracking-[0.18em] text-accent-fg/70 uppercase">
               Cork & Carriage LLC · Middlesex County, Virginia
@@ -137,10 +136,15 @@ export function SiteHome() {
             </h2>
             <p className="mt-4 max-w-2xl text-muted">
               Cork & Carriage’s first service is the 1950 Chevrolet 3600
-              Advance Design — ¾-ton, chrome grille, whitewalls — rented as a
+              Advance Design — ¾-ton, chrome grille — rented as a
               photography set. You bring the photographer and a location on our
               circuit. We stage the truck and stay out of the frame.
             </p>
+            <img
+              src="/lookbook-holiday-farm.jpg?v=6"
+              alt="Green 1950 Chevrolet 3600 on a Virginia farm, wreath on the grille for a holiday-card session"
+              className="mt-8 h-64 w-full rounded-xl object-cover object-center sm:h-[28rem]"
+            />
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {seasons.map((s) => (
                 <article key={s.t} className="rounded-xl bg-bg p-5 shadow-[var(--shadow-border)]">
@@ -230,7 +234,7 @@ export function SiteHome() {
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
             <p className="text-xs font-medium tracking-[0.18em] text-muted uppercase">Lookbook</p>
             <h2 className="mt-3 font-display text-3xl font-medium text-ink sm:text-4xl">The only ad that matters.</h2>
-            <div className="mt-8 grid gap-3 md:grid-cols-3">
+            <div className="mt-8 grid gap-3 md:grid-cols-2">
               {gallery.map((g) => (
                 <img
                   key={g.src}
